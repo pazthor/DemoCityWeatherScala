@@ -1,6 +1,6 @@
 
-# Created by https://www.gitignore.io/api/macos,scala,intellij
-# Edit at https://www.gitignore.io/?templates=macos,scala,intellij
+# Created by https://www.gitignore.io/api/sbt,macos,scala,intellij
+# Edit at https://www.gitignore.io/?templates=sbt,macos,scala,intellij
 
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
@@ -109,8 +109,22 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+### SBT ###
+# Simple Build Tool
+# http://www.scala-sbt.org/release/docs/Getting-Started/Directories.html#configuring-version-control
+
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib/
+
 ### Scala ###
 *.class
 *.log
 
-# End of https://www.gitignore.io/api/macos,scala,intellij
+# End of https://www.gitignore.io/api/sbt,macos,scala,intellij
