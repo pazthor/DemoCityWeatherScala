@@ -12,7 +12,7 @@ case class WeatherReport( nameCity:String, temp: Double, min: Double, max: Doubl
 case class Main( temp: Double, min: Double, max: Double) extends WeatherResult
 case class Weather( conditions: String, description: String) extends WeatherResult
 class ApiOpenWeatherService {
-  val api_key:String = "204ab22bbe1a860dd74aa881bc06ada9"// "WEATHER_API_KEY"
+  val api_key:String =  "WEATHER_API_KEY"
   val maxTries = 5
   val threadSleep = 1000
   val mode = "xml"
