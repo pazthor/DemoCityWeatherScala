@@ -1,5 +1,6 @@
-import Services.TicketService
+import Services._
 import org.scalatest.FunSuite
+
 
 class TicketServiceTest extends FunSuite {
 
@@ -10,4 +11,15 @@ class TicketServiceTest extends FunSuite {
     assert(ticket.existAirport("CUN") === true)
   }
 
+  test("ApiOpenWeatherService.apiCall"){
+    val api = new ApiOpenWeatherService()
+    val result  = api.apiCall(25.7785f,-100.107f)
+
+    result match {
+      case WeatherReport( city, temp, min, max, conditions, lastUpdate)  =>
+        assert("overcast clouds"=== conditions)
+      case Error("") =>
+        println(" Error")
+    }
+  }
 }
