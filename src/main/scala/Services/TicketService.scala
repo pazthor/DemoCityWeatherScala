@@ -3,9 +3,11 @@ package Services
 import Domain.{AirPort, Ticket}
 
 class TicketService {
-  var Tickets:List[Ticket] = List[Ticket]()
+  var Tickets:List[Ticket] =  List[Ticket]()
   var AirPorts:List[AirPort] = List[AirPort]()
-  var IataCodeWeather: Map[Int, String] = Map()
+  var IataCodeWeather = scala.collection.mutable.Map[String, WeatherResult]()
+
+  val apiOpenWeatherService = new ApiOpenWeatherService()
 
     def readCsv(fileName: String): Unit = {
       // airport_origin
@@ -46,7 +48,7 @@ class TicketService {
         val flightNum :String= col(flightNumCol)
 
         val originAirport = findOrCreateAirport(oIataCode, oShortName, oNameAirPort, oLatitude, oLongitude )
-        val destinyAirport = findOrCreateAirport(oIataCode, oShortName, oNameAirPort, oLatitude, oLongitude )
+        val destinyAirport = findOrCreateAirport(dIataCode, dShortName, dNameAirPort, dLatitude, dLongitude )
 
         val ticket = new Ticket(airLineName, flightNum, originAirport, destinyAirport )
 
@@ -66,11 +68,56 @@ class TicketService {
     for( element <- AirPorts ){
       println(element.NameAirport)
     }
+  }
+  def existAirport(iataCode: String): Boolean = AirPorts.exists(airport => airport.IataCode.contains(iataCode))
 
+  def getWeather(): Unit ={
+
+    var originWeather : WeatherResult = null
+    var destinynWeather : WeatherResult = null
+    var count = 0
+    for(ticket <- Tickets ){
+      //origin
+      if(IataCodeWeather.exists(p => p._1.contains( ticket.OriginAirport.IataCode) ) ){
+        originWeather = IataCodeWeather(ticket.OriginAirport.IataCode)
+      }
+      else {
+        IataCodeWeather +=
+          (ticket.OriginAirport.IataCode->apiOpenWeatherService.apiCall(ticket.OriginAirport.Latitude ,ticket.OriginAirport.Longitude) )
+        Thread.sleep(100)
+        originWeather=IataCodeWeather(ticket.OriginAirport.IataCode)
+
+      }
+
+      if(IataCodeWeather.exists(p => p._1.contains(ticket.DestinyAirport.IataCode) ) ){
+        destinynWeather = IataCodeWeather(ticket.DestinyAirport.IataCode)
+      }
+      else {
+        IataCodeWeather +=
+          (ticket.DestinyAirport.IataCode -> apiOpenWeatherService.apiCall(ticket.DestinyAirport.Latitude ,ticket.DestinyAirport.Longitude) )
+        Thread.sleep(100)
+        destinynWeather= IataCodeWeather(ticket.DestinyAirport.IataCode)
+      }
+      val originFormatWeather = showWeather(originWeather)
+      val destinyFormatWeather = showWeather(destinynWeather)
+
+      printer(count, ticket,originFormatWeather , destinyFormatWeather )
+      count= count+1
+    }
   }
 
+  def showWeather(weather: WeatherResult):String={
+    weather match {
+      case Error(err) =>
+        s"Error: $err"
+      case WeatherReport(nameCity, temp, min, max, conditions, lastUpdate) =>
+         s"Temperature: $temp, temperature min:$min, temperature max: $max, weather: $conditions. Last Update: $lastUpdate."
+    }
 
-
-  def existAirport(iataCode: String): Boolean = AirPorts.exists(airport => airport.IataCode.contains(iataCode))
+  }
+  def printer(count:Int,ticket: Ticket, originWeather:String, destinyWeather:String): Unit ={
+    println(s"$count — [FlightNum:${ticket.FlightNum}] Weather of the airPort origin ${ticket.OriginAirport.ShortName} :$originWeather -> " +
+      s"Weather of the airPort Destiny ${ticket.DestinyAirport.ShortName} :$destinyWeather")
+  }
 
 }
