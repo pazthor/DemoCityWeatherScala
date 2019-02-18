@@ -7,7 +7,7 @@ object Main {
 
     val service = new TicketService()
     service.readCsv("dataset.csv")
-    service.printerAirPortName()
+    service.getWeather()
 
   }
 }
